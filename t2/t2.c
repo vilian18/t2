@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define TAM_STRING 50
-#define TAM_FILE 30
+#define TAM_FILE 50
 
 void le_notas(int* matriculas, float* notas){
    int i=0, mat;
@@ -18,10 +18,6 @@ void le_notas(int* matriculas, float* notas){
       matriculas[i]= mat;
       notas[i]= (nota1+nota2)/2;
       i++;
-      if(i%TAM_FILE == 0){
-         matriculas = (int*) realloc(matriculas, i*sizeof(int) + TAM_FILE*sizeof(int));
-         notas = (float*) realloc(notas, i*sizeof(float) + TAM_FILE*sizeof(float));
-      }
    }
    fclose(f);
  }
@@ -48,22 +44,22 @@ void le_alunos(int* matriculas, char** nomes, int* n){
       }
       nome[i]='\0';
       matriculas[linha]=mat;
+      nomes[linha]= (char*)malloc((strlen(nome)+1)*sizeof(char));
       strcpy(nomes[linha], nome);
       linha++;
-      if(i%linha == 0){
-         matriculas = (int*) realloc(matriculas, i*sizeof(int) + TAM_FILE*sizeof(int));
-         /*nomes = (char**) realloc(nomes, i*sizeof(float) + TAM_FILE*sizeof(char*));*/
-      }
    }
    *n=linha;
    fclose(f);
 }
 
 void search(char** nomes, int* vetor_matric_notas, int* vetor_matric_nomes, float* vetor_notas, int *n, char *busca){
-   int i=0, cont2=0;
+   int i=0, cont2;
    for(i=0; i<*n; i++){
+      cont2=0;
       if(strcasestr(nomes[i], busca)!=NULL){
-         printf("Aluno: %s  Media: %g\n\n", nomes[i], vetor_notas[i]);
+         while(vetor_matric_nomes[i]!= vetor_matric_notas[cont2])
+            cont2++;
+         printf("Aluno: %s  Media: %g\n\n", nomes[i], vetor_notas[cont2]);
       }
    }
 }
@@ -74,16 +70,12 @@ int main(int argc, char** argv){
    int* vetor_matric_nomes;
    float* vetor_notas;
    char** vetor_nomes;
-   char* busca;
-   busca= (char*)malloc(TAM_STRING*sizeof(char));
-   busca=argv[1];
+   char busca[TAM_STRING];
+   strcpy (busca,argv[1]);
    vetor_matric_notas= (int*)malloc(TAM_FILE*sizeof(float));
    vetor_matric_nomes= (int*)malloc(TAM_FILE*sizeof(int));
    vetor_notas= (float*)malloc((TAM_FILE*sizeof(float)));
    vetor_nomes= (char**)malloc(TAM_FILE*sizeof(char*));
-   for(cont=0; cont<TAM_FILE; cont++){
-      vetor_nomes[cont]= (char*)malloc(TAM_STRING*sizeof(char));
-   }
    if(argc>1){
    le_alunos(vetor_matric_nomes, vetor_nomes, &n);
    le_notas(vetor_matric_notas, vetor_notas);
@@ -92,14 +84,12 @@ int main(int argc, char** argv){
    else{
       printf("Ha argumento faltando para o programa\n Execute como: \"./t2 [argumento]\"\nArgumento eh o nome que deseja buscar\n");
    }
-   for(cont=0; cont<TAM_FILE; cont++){
+   for(cont=0; cont< n; cont++)
       free(vetor_nomes[cont]);
-   }
-   free(*vetor_nomes);
+   free(vetor_nomes);
    free(vetor_matric_nomes);
    free(vetor_matric_notas);
    free(vetor_notas);
-   free(busca);
 
    return 0;
 }

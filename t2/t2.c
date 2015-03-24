@@ -4,15 +4,6 @@
 #define TAM_STRING 50
 #define TAM_FILE 30
 
-/*void aloca_vetor_nomes(char** vetor){
-   int i=0;
-   vetor= (char**)malloc(TAM_FILE*sizeof(char*));
-   for(i=0; i<; i++){
-      vetor[i]=(char*)malloc(TAM_STRING*sizeof(char));
-   }
-   testa_alocacao_nomes(vetor);
-}*/
-
 void le_notas(int* matriculas, float* notas){
    int i=0, mat;
    float nota1=0.0, nota2=0.0;
@@ -27,9 +18,13 @@ void le_notas(int* matriculas, float* notas){
       matriculas[i]= mat;
       notas[i]= (nota1+nota2)/2;
       i++;
+      if(i%TAM_FILE == 0){
+         matriculas = (int*) realloc(matriculas, i*sizeof(int) + TAM_FILE*sizeof(int));
+         notas = (float*) realloc(notas, i*sizeof(float) + TAM_FILE*sizeof(float));
+      }
    }
    fclose(f);
-}
+ }
 
 void le_alunos(int* matriculas, char** nomes, int* n){
    int mat, i, linha=0;
@@ -55,16 +50,21 @@ void le_alunos(int* matriculas, char** nomes, int* n){
       matriculas[linha]=mat;
       strcpy(nomes[linha], nome);
       linha++;
+      if(i%linha == 0){
+         matriculas = (int*) realloc(matriculas, i*sizeof(int) + TAM_FILE*sizeof(int));
+         /*nomes = (char**) realloc(nomes, i*sizeof(float) + TAM_FILE*sizeof(char*));*/
+      }
    }
    *n=linha;
    fclose(f);
 }
 
 void search(char** nomes, int* vetor_matric_notas, int* vetor_matric_nomes, float* vetor_notas, int *n, char *busca){
-   int i=0, cont;
+   int i=0, cont2=0;
    for(i=0; i<*n; i++){
-      if(strcasestr(nomes[i], busca)!=NULL)
+      if(strcasestr(nomes[i], busca)!=NULL){
          printf("Aluno: %s  Media: %g\n\n", nomes[i], vetor_notas[i]);
+      }
    }
 }
 
@@ -88,11 +88,18 @@ int main(int argc, char** argv){
    le_alunos(vetor_matric_nomes, vetor_nomes, &n);
    le_notas(vetor_matric_notas, vetor_notas);
    search(vetor_nomes, vetor_matric_notas, vetor_matric_nomes, vetor_notas, &n, busca);
-
    }
    else{
       printf("Ha argumento faltando para o programa\n Execute como: \"./t2 [argumento]\"\nArgumento eh o nome que deseja buscar\n");
    }
+   for(cont=0; cont<TAM_FILE; cont++){
+      free(vetor_nomes[cont]);
+   }
+   free(*vetor_nomes);
+   free(vetor_matric_nomes);
+   free(vetor_matric_notas);
+   free(vetor_notas);
+   free(busca);
 
    return 0;
 }

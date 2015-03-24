@@ -60,12 +60,23 @@ void le_alunos(int* matriculas, char** nomes, int* n){
    fclose(f);
 }
 
+void search(char** nomes, int* vetor_matric_notas, int* vetor_matric_nomes, float* vetor_notas, int *n, char *busca){
+   int i=0, cont;
+   for(i=0; i<*n; i++){
+      if(strcasestr(nomes[i], busca)!=NULL)
+         printf("Aluno: %s  Media: %g\n\n", nomes[i], vetor_notas[i]);
+   }
+}
+
 int main(int argc, char** argv){
    int n=0, cont;
    int* vetor_matric_notas;
    int* vetor_matric_nomes;
    float* vetor_notas;
    char** vetor_nomes;
+   char* busca;
+   busca= (char*)malloc(TAM_STRING*sizeof(char));
+   busca=argv[1];
    vetor_matric_notas= (int*)malloc(TAM_FILE*sizeof(float));
    vetor_matric_nomes= (int*)malloc(TAM_FILE*sizeof(int));
    vetor_notas= (float*)malloc((TAM_FILE*sizeof(float)));
@@ -73,8 +84,15 @@ int main(int argc, char** argv){
    for(cont=0; cont<TAM_FILE; cont++){
       vetor_nomes[cont]= (char*)malloc(TAM_STRING*sizeof(char));
    }
+   if(argc>1){
    le_alunos(vetor_matric_nomes, vetor_nomes, &n);
    le_notas(vetor_matric_notas, vetor_notas);
+   search(vetor_nomes, vetor_matric_notas, vetor_matric_nomes, vetor_notas, &n, busca);
+
+   }
+   else{
+      printf("Ha argumento faltando para o programa\n Execute como: \"./t2 [argumento]\"\nArgumento eh o nome que deseja buscar\n");
+   }
 
    return 0;
 }
